@@ -6,6 +6,7 @@ import {
   IconButton,
   MobileNav,
   Typography,
+  Collapse,
 } from "@material-tailwind/react";
 
 const MyNav = () => {
@@ -141,7 +142,7 @@ const MyNav = () => {
           </IconButton>
         </div>
       </div>
-      <MobileNav open={openNav}>
+      <Collapse open={openNav}>
         {navList}
         <div className="flex items-center gap-x-1">
           <Button
@@ -163,7 +164,7 @@ const MyNav = () => {
             <span>Sign in</span>
           </Button>
         </div>
-      </MobileNav>
+      </Collapse>
     </Navbar>
   );
 };

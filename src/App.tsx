@@ -1,31 +1,13 @@
-import { useState, useEffect } from "react";
-import MyNav from "./components/MyNav";
+import { useState, useEffect, useRef } from "react";
+import MyNav from "./components/MyNav.tsx";
+import UploadCard from "./components/UploadCard.tsx";
 import "./App.css";
 
 import { Button, Typography, Card } from "@material-tailwind/react";
 
 function App() {
-  const [isDragging, setIsDragging] = useState(false);
-  const [file, setFile] = useState([]);
-
-  const handleDragEnter = (event: any) => {
-    // Need to check if event.dataTransfer has files
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (event: any) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: any) => {
-    event.preventDefault();
-    const droppedFiles = event.dataTransfer.files;
-    setFile(droppedFiles); // Update state with dropped files
-  };
+  const [isUploading, setIsUploading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   return (
     <div className="">
@@ -45,32 +27,10 @@ function App() {
         className="text-center font-bold mb-8 py-8"
         placeholder={undefined}
       >
-        Upload your videos to our website, edit them, then download them yo
+        Upload your videos to our website, edit them, then download them
       </Typography>
 
-      <Card
-        className={`mx-auto max-w-lg flex ${isDragging ? "bg-blue-500" : ""}`}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        placeholder={undefined}
-      >
-        <Typography color="blue-gray" placeholder={undefined}>
-          <p className="text-center text-gray-700 mb-8">
-            Drag and drop or click to select...
-          </p>
-        </Typography>
-        <div className="flex justify-center content-center">
-          <Button
-            className="max-w-xs mb-4"
-            variant="outlined"
-            color="blue"
-            size="md"
-            placeholder={undefined}
-          >
-            Upload
-          </Button>
-        </div>
-      </Card>
+      <UploadCard file={file} setFile={setFile} />
 
       <div className="mx-auto max-w-screen-md py-12">
         <Card className="mb-12 overflow-hidden" placeholder={undefined}>
@@ -86,7 +46,7 @@ function App() {
           className="mb-2"
           placeholder={undefined}
         >
-          Check out what it do
+          Check out what it does
         </Typography>
       </div>
     </div>
