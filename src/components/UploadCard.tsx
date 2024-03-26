@@ -20,12 +20,40 @@ const UploadCard = ({ file, setFile }) => {
     event.preventDefault();
   };
 
-  const handleDrop = (event: any) => {
+  const getFileFromLocal = async (f: File) => {
+    try {
+      // File System Access API. Requires HTTPS. Throws TS
+      // compiler error because not included by default.
+      const handle = await window.showDirectoryPicker({
+        startIn: "desktop",
+        mode: "readwrite",
+      });
+
+      const localFile = await handle.getFileHandle(f.name);
+      setFile(localFile);
+    } catch (error) {
+      console.error("Error :: ", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDrop = async (event: any) => {
     event.preventDefault();
-    const droppedFiles = event.dataTransfer.files[0];
-    setFile(droppedFiles);
     setIsUploading(true);
     setIsDragging(0);
+
+    const droppedFile = event.dataTransfer.files[0];
+    console.log("dropped:" + droppedFile.name);
+    await getFileFromLocal(droppedFile);
+  };
+
+  const handleSelectFromExplorer = async (event: any) => {
+    setIsUploading(true);
+
+    const selectedFile = event.target.files[0];
+    console.log("select: " + selectedFile.name);
+    await getFileFromLocal(selectedFile);
   };
 
   const handleUploadBtnClick = () => {
@@ -83,11 +111,8 @@ const UploadCard = ({ file, setFile }) => {
             id="vid_uploads"
             name="vid_uploads"
             // Optional chaining takes precedence over index access,
-            // so we have to type the array and not the file element
-            onChange={(event) => {
-              setFile((event.target?.files as FileList)?.[0]);
-              setIsUploading(true);
-            }}
+            // so we have to type the array and not the File element
+            onChange={handleSelectFromExplorer}
           />
         </div>
       </div>
