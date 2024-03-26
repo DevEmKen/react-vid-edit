@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Button, Typography, Card } from "@material-tailwind/react";
+import { Button, Typography, Card, Tooltip } from "@material-tailwind/react";
 import { BallTriangle, Circles } from "react-loader-spinner";
 
-const UploadCard = ({ file, setFile }) => {
+const UploadCard = ({ file, setFile, folder, setFolder }) => {
   const [isDragging, setIsDragging] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileFromButton = useRef<HTMLInputElement | null>(null);
+  const [infoHovered, setInfoHovered] = useState(false);
 
   const handleDragEnter = (event: any) => {
     setIsDragging(isDragging + 1);
@@ -20,7 +21,7 @@ const UploadCard = ({ file, setFile }) => {
     event.preventDefault();
   };
 
-  const getFileFromLocal = async (f: File) => {
+  const getFolderFromExplorer = async () => {
     try {
       // File System Access API. Requires HTTPS. Throws TS
       // compiler error because not included by default.
@@ -28,9 +29,8 @@ const UploadCard = ({ file, setFile }) => {
         startIn: "desktop",
         mode: "readwrite",
       });
-
-      const localFile = await handle.getFileHandle(f.name);
-      setFile(localFile);
+      setFolder(handle.name);
+      console.log(handle.entries());
     } catch (error) {
       console.error("Error :: ", error);
     } finally {
@@ -38,67 +38,71 @@ const UploadCard = ({ file, setFile }) => {
     }
   };
 
-  const handleDrop = async (event: any) => {
-    event.preventDefault();
-    setIsUploading(true);
-    setIsDragging(0);
-
-    const droppedFile = event.dataTransfer.files[0];
-    console.log("dropped:" + droppedFile.name);
-    await getFileFromLocal(droppedFile);
-  };
-
   const handleSelectFromExplorer = async (event: any) => {
     setIsUploading(true);
 
     const selectedFile = event.target.files[0];
     console.log("select: " + selectedFile.name);
-    await getFileFromLocal(selectedFile);
+    setFile(selectedFile);
   };
 
-  const handleUploadBtnClick = () => {
+  const handleUploadBtnClick = async () => {
+    await getFolderFromExplorer();
     fileFromButton.current?.click();
   };
 
   return (
     <Card
-      className={`mx-auto max-w-lg flex items-center justify-center bg-gray-150 ${
+      className={`mx-auto max-w-xl flex items-center justify-center bg-gray-150 ${
         isDragging > 0 ? "bg-gray-300" : ""
       }`}
       onDragOver={handleDragOver}
-      onDrop={handleDrop}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       placeholder={undefined}
       shadow={true}
     >
       <Typography
-        className="pointer-events-none text-center p-8 inline-block"
+        className="pointer-events-none text-center pt-6 inline-block"
         color="blue-gray"
         placeholder={undefined}
       >
-        Drag and drop video files here
+        1. Allow the webpage access to the folder with your desired media.
+        <br />
+        2. Select your video from the folder.
       </Typography>
+      <Tooltip
+        className="max-w-md"
+        content="Browsers generally disallow webpages interacting directly with the user's system. The File System Access API bypasses this restriction in a secure and transparent way, allowing the user to restrict the webpage to only interact with a chosen folder."
+      >
+        <p className="pt-2 text-xs text-underline hover:underline cursor-pointer">
+          ⓘ Why?
+        </p>
+      </Tooltip>
 
-      <div className="flex place-content-center max-w-30">
+      <div className="flex flex-col place-content-center max-w-30">
         <Button
-          className="max-w-xs mb-6"
+          className="max-w-xs mt-6"
           variant="outlined"
           color={isDragging > 0 || file ? "blue-gray" : "blue"}
           size="sm"
           placeholder={undefined}
           onClick={handleUploadBtnClick}
         >
-          {isDragging > 0 ? "Drop Video" : file ? file.name : "Choose File..."}
+          {folder && !file
+            ? "Choose File..."
+            : file
+            ? file.name
+            : "Choose Folder..."}
         </Button>
 
-        <div className={isUploading ? "pt-1 pl-2" : "pt-1 pl-2 opacity-0"}>
+        <div className={isUploading ? "p-2 " : "p-2 opacity-0"}>
           <BallTriangle
-            height="25"
-            width="25"
+            height="15"
+            width="15"
             color="#637D8A"
             ariaLabel="circles-loading"
-            wrapperStyle={{}}
+            wrapperStyle={{ justifyContent: "center" }}
             wrapperClass=""
             visible={true}
           />
@@ -110,8 +114,6 @@ const UploadCard = ({ file, setFile }) => {
             ref={fileFromButton}
             id="vid_uploads"
             name="vid_uploads"
-            // Optional chaining takes precedence over index access,
-            // so we have to type the array and not the File element
             onChange={handleSelectFromExplorer}
           />
         </div>
