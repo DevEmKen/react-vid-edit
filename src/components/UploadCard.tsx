@@ -3,8 +3,8 @@ import { Button, Typography, Card, Tooltip } from "@material-tailwind/react";
 import { BallTriangle } from "react-loader-spinner";
 import RootState from "../redux/reduxtypes";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
 import { setBlobUrl } from "../redux/vidFileSlice";
+import { useDispatch } from "react-redux";
 
 const UploadCard = ({ setUserHasUploaded }) => {
   const [isUploading, setIsUploading] = useState(false);
