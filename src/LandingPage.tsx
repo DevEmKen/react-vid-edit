@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import MyNav from "./components/MyNav.tsx";
 import UploadCard from "./components/UploadCard.tsx";
 import "./styles/LandingPage.css";
+import ReactPlayer from "react-player";
 
 import { Button, Typography, Card } from "@material-tailwind/react";
 
 function LandingPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [folder, setFolder] = useState(null);
+  const [file, setFile] = useState<any>(null);
 
   return (
     <div className="">
@@ -19,7 +19,7 @@ function LandingPage() {
         className="text-center font-bold mb-8 pt-20"
         placeholder={undefined}
       >
-        Offline Editor
+        Online, Local Editor
       </Typography>
       <Typography
         variant="h3"
@@ -27,15 +27,12 @@ function LandingPage() {
         className="text-center font-bold mb-8 py-8"
         placeholder={undefined}
       >
-        Edit your videos locally, through a webpage!
+        Edit your videos locally through a webpage!
       </Typography>
 
-      <UploadCard
-        file={file}
-        setFile={setFile}
-        folder={folder}
-        setFolder={setFolder}
-      />
+      <UploadCard file={file} setFile={setFile} />
+
+      <ReactPlayer url={file} />
 
       <div className="mx-auto max-w-screen-md py-12">
         <Card className="mb-12 overflow-hidden" placeholder={undefined}>

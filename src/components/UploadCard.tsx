@@ -1,64 +1,80 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Typography, Card, Tooltip } from "@material-tailwind/react";
-import { BallTriangle, Circles } from "react-loader-spinner";
+import { BallTriangle } from "react-loader-spinner";
 
-const UploadCard = ({ file, setFile, folder, setFolder }) => {
-  const [isDragging, setIsDragging] = useState(0);
+const UploadCard = ({ file, setFile }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [folder, setFolder] = useState(null);
+
   const fileFromButton = useRef<HTMLInputElement | null>(null);
-  const [infoHovered, setInfoHovered] = useState(false);
-
-  const handleDragEnter = (event: any) => {
-    setIsDragging(isDragging + 1);
-  };
-
-  const handleDragLeave = () => {
-    if (isDragging <= 0) return;
-    setIsDragging(isDragging - 1);
-  };
 
   const handleDragOver = (event: any) => {
     event.preventDefault();
   };
 
-  const getFolderFromExplorer = async () => {
-    try {
-      // File System Access API. Requires HTTPS. Throws TS
-      // compiler error because not included by default.
-      const handle = await window.showDirectoryPicker({
-        startIn: "desktop",
-        mode: "readwrite",
-      });
-      setFolder(handle.name);
-      console.log(handle.entries());
-    } catch (error) {
-      console.error("Error :: ", error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const getFolderFromExplorer = async () => {};
 
   const handleSelectFromExplorer = async (event: any) => {
     setIsUploading(true);
 
     const selectedFile = event.target.files[0];
-    console.log("select: " + selectedFile.name);
-    setFile(selectedFile);
+
+    try {
+      const fh = await folder.getFileHandle(selectedFile.name);
+      const fl = await fh.getFile();
+      if (fl) {
+        const blob = new Blob([fl], { type: fl.type });
+        const url = window.URL.createObjectURL(blob);
+        setFile(url);
+      }
+    } catch (error) {
+      console.log(error);
+      window.alert(
+        "Cannot open file. Did you give permission for the correct folder?"
+      );
+      setIsUploading(false);
+      setFile(null);
+    }
+  };
+
+  // showDirectoryPicker is not included with Window type by default.
+  // For Amplify, we must intersect the default type so that TS won't complain
+  type WindowWithFilePicker = Window & {
+    showDirectoryPicker(
+      options?: FilePickerOptions
+    ): Promise<FileSystemDirectoryHandle>;
+  };
+
+  type FilePickerOptions = {
+    startIn: "desktop";
+    mode: "readwrite";
   };
 
   const handleUploadBtnClick = async () => {
-    await getFolderFromExplorer();
-    fileFromButton.current?.click();
+    try {
+      const extWindow = window as unknown as WindowWithFilePicker;
+      // File System Access API. Requires HTTPS.
+      if ("showDirectoryPicker" in window) {
+        const fld = await extWindow.showDirectoryPicker({
+          startIn: "desktop",
+          mode: "readwrite",
+        });
+        setFolder(fld);
+      } else {
+        window.alert("Please update your browser");
+      }
+    } catch (error) {
+      console.error("Error :: ", error);
+    } finally {
+      setIsUploading(false);
+      fileFromButton.current?.click();
+    }
   };
 
   return (
     <Card
-      className={`mx-auto max-w-xl flex items-center justify-center bg-gray-150 ${
-        isDragging > 0 ? "bg-gray-300" : ""
-      }`}
+      className={`mx-auto max-w-xl flex items-center justify-center bg-gray-150`}
       onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
       placeholder={undefined}
       shadow={true}
     >
@@ -84,7 +100,7 @@ const UploadCard = ({ file, setFile, folder, setFolder }) => {
         <Button
           className="max-w-xs mt-6"
           variant="outlined"
-          color={isDragging > 0 || file ? "blue-gray" : "blue"}
+          color={file ? "blue-gray" : "blue"}
           size="sm"
           placeholder={undefined}
           onClick={handleUploadBtnClick}
