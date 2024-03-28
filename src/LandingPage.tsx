@@ -1,13 +1,27 @@
 import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import RootState from "./redux/reduxtypes.tsx";
+import { setBlobUrl } from "./redux/vidFileSlice.tsx";
+
 import MyNav from "./components/MyNav.tsx";
 import UploadCard from "./components/UploadCard.tsx";
+import EditPage from "./components/EditPage.tsx";
+
 import "./styles/LandingPage.css";
+
 import ReactPlayer from "react-player";
 
 import { Button, Typography, Card } from "@material-tailwind/react";
 
 function LandingPage() {
-  const [file, setFile] = useState<any>(null);
+  const file = useSelector((state: RootState) => state.vidFile.blobUrl);
+
+  useEffect(() => {
+    if (file) {
+      // React router navigation here
+    }
+  }, [file]);
 
   return (
     <div className="">
@@ -30,7 +44,7 @@ function LandingPage() {
         Edit your videos locally through a webpage!
       </Typography>
 
-      <UploadCard file={file} setFile={setFile} />
+      <UploadCard file={file} setFile={null} />
 
       <ReactPlayer url={file} />
 

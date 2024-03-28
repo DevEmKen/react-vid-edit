@@ -1,12 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Typography, Card, Tooltip } from "@material-tailwind/react";
 import { BallTriangle } from "react-loader-spinner";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import RootState from "../redux/reduxtypes";
+import { setBlobUrl } from "../redux/vidFileSlice";
 
-const UploadCard = ({ file, setFile }) => {
+const UploadCard = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [folder, setFolder] = useState(null);
 
   const fileFromButton = useRef<HTMLInputElement | null>(null);
+  const dispatch = useDispatch();
+  const file = useSelector((state: RootState) => state.vidFile.blobUrl);
 
   const handleDragOver = (event: any) => {
     event.preventDefault();
@@ -25,7 +31,7 @@ const UploadCard = ({ file, setFile }) => {
       if (fl) {
         const blob = new Blob([fl], { type: fl.type });
         const url = window.URL.createObjectURL(blob);
-        setFile(url);
+        dispatch(setBlobUrl(url));
       }
     } catch (error) {
       console.log(error);
@@ -33,7 +39,7 @@ const UploadCard = ({ file, setFile }) => {
         "Cannot open file. Did you give permission for the correct folder?"
       );
       setIsUploading(false);
-      setFile(null);
+      dispatch(setBlobUrl(null));
     }
   };
 
