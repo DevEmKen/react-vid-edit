@@ -1,27 +1,25 @@
-import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
 import RootState from "./redux/reduxtypes.tsx";
-import { setBlobUrl } from "./redux/vidFileSlice.tsx";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
+import { Button, Typography, Card } from "@material-tailwind/react";
 import MyNav from "./components/MyNav.tsx";
 import UploadCard from "./components/UploadCard.tsx";
-import EditPage from "./components/EditPage.tsx";
 
 import "./styles/LandingPage.css";
 
-import ReactPlayer from "react-player";
-
-import { Button, Typography, Card } from "@material-tailwind/react";
-
 function LandingPage() {
   const file = useSelector((state: RootState) => state.vidFile.blobUrl);
+  const [userHasUploaded, setUserHasUploaded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (file) {
-      // React router navigation here
+    if (file && userHasUploaded) {
+      setUserHasUploaded(false);
+      navigate("/edit");
     }
-  }, [file]);
+  }, [file, userHasUploaded]);
 
   return (
     <div className="">
@@ -44,9 +42,7 @@ function LandingPage() {
         Edit your videos locally through a webpage!
       </Typography>
 
-      <UploadCard file={file} setFile={null} />
-
-      <ReactPlayer url={file} />
+      <UploadCard setUserHasUploaded={setUserHasUploaded} />
 
       <div className="mx-auto max-w-screen-md py-12">
         <Card className="mb-12 overflow-hidden" placeholder={undefined}>

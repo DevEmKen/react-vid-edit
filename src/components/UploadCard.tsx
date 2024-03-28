@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Typography, Card, Tooltip } from "@material-tailwind/react";
 import { BallTriangle } from "react-loader-spinner";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
 import RootState from "../redux/reduxtypes";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setBlobUrl } from "../redux/vidFileSlice";
 
-const UploadCard = () => {
+const UploadCard = ({ setUserHasUploaded }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [folder, setFolder] = useState(null);
 
@@ -31,6 +31,7 @@ const UploadCard = () => {
       if (fl) {
         const blob = new Blob([fl], { type: fl.type });
         const url = window.URL.createObjectURL(blob);
+        setUserHasUploaded(true);
         dispatch(setBlobUrl(url));
       }
     } catch (error) {
@@ -114,7 +115,7 @@ const UploadCard = () => {
           {folder && !file
             ? "Choose File..."
             : file
-            ? file.name
+            ? "Working..."
             : "Choose Folder..."}
         </Button>
 
